@@ -1,13 +1,20 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+header("Allow: GET, POST, OPTIONS, PUT, DELETE");
+$method = $_SERVER['REQUEST_METHOD'];
+if($method == "OPTIONS") {
+    die();
+}
+
 
 require_once 'vendor/autoload.php';
 
 $app = new Slim\Slim();
 
 $db = new mysqli("localhost","root","vistazo","api");
-mysqli_set_charset($db, 'utf8');
+//mysqli_set_charset($db, 'utf8');
 if (mysqli_connect_errno()) {
     printf("Conexión fallida: %s\n", mysqli_connect_error());
     exit();
@@ -16,9 +23,11 @@ if (mysqli_connect_errno()) {
 
 $app->get("/productos",function() use($db,$app){
 
-    $resultado = $db->query("SELECT * FROM productos;");
+    $resultado = $db->query("SELECT dimensionad_exchange_device_category,count(*) as total FROM api.11223363888 
+    where dimensionad_exchange_date between '2019-08-01' and '2019-08-25'group by 1 order by 2 desc");
+    
     $productos=array();
-        while ($fila = $resultado->fetch_assoc()) {
+        while ($fila = $resultado->fetch_array()) {
             
             $productos[]=$fila;
         }
