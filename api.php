@@ -94,11 +94,11 @@ $app->get("/productos",function() use($db,$app){
         ."'{$app->request->post("origen")}',"
          ."'{$app->request->post("nombres")}',"
          ."'{$app->request->post("apellidos")}',"
-         ."'{$app->request->post("rut")}'"
-         ."'{$app->request->post("telefono")}'"
-         ."'{$app->request->post("correo")}'"
-         ."'{$app->request->post("marca")}'"
-         ."'{$app->request->post("modelo")}'"
+         ."'{$app->request->post("rut")}',"
+         ."'{$app->request->post("telefono")}',"
+         ."'{$app->request->post("correo")}',"
+         ."'{$app->request->post("marca")}',"
+         ."'{$app->request->post("modelo")}',"
          ."'{$app->request->post("consesionario")}'"
          .")";
 
