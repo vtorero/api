@@ -84,11 +84,23 @@ $app->get("/productos",function() use($db,$app){
     }else{
         $result = array("STATUS"=>false,"messaje"=>"Producto no eliminado");
     }
-
      echo json_encode($result);
-
-
-
     });
+
+
+    $app->post("/skoda",function() use($db,$app){
+        $query ="INSERT INTO skoda VALUES (NULL,"
+         ."'{$app->request->post("name")}',"
+         ."'{$app->request->post("description")}',"
+         ."'{$app->request->post("price")}'"
+         .")";
+         $insert= $db->query($query);
+          if($insert){
+          $result = array("STATUS"=>true,"messaje"=>"Skoda registrado correctamente");
+           }else{
+           $result = array("STATUS"=>false,"messaje"=>"Skoda no creado");
+           }
+            echo json_encode($result);
+           }); 
 
 $app->run();
