@@ -90,9 +90,16 @@ $app->get("/productos",function() use($db,$app){
 
     $app->post("/skoda",function() use($db,$app){
         $query ="INSERT INTO skoda VALUES (NULL,"
-         ."'{$app->request->post("name")}',"
-         ."'{$app->request->post("description")}',"
-         ."'{$app->request->post("price")}'"
+        ."'{$app->request->post("source")}',"
+        ."'{$app->request->post("origen")}',"
+         ."'{$app->request->post("nombres")}',"
+         ."'{$app->request->post("apellidos")}',"
+         ."'{$app->request->post("rut")}'"
+         ."'{$app->request->post("telefono")}'"
+         ."'{$app->request->post("correo")}'"
+         ."'{$app->request->post("marca")}'"
+         ."'{$app->request->post("modelo")}'"
+         ."'{$app->request->post("consesionario")}'"
          .")";
          $insert= $db->query($query);
           if($insert){
