@@ -13,7 +13,7 @@ require_once 'vendor/autoload.php';
 
 $app = new Slim\Slim();
 
-$db = new mysqli("localhost",",marife","libido16","adops");
+$db = new mysqli("localhost","marife","libido16","adops");
 //mysqli_set_charset($db, 'utf8');
 if (mysqli_connect_errno()) {
     printf("Conexión fallida: %s\n", mysqli_connect_error());
