@@ -89,7 +89,7 @@ $app->get("/productos",function() use($db,$app){
 
 
     $app->post("/skoda",function() use($db,$app){
-        $query ="INSERT INTO skoda VALUES (NULL,"
+        $query ="INSERT INTO skoda (source,origen,nombres,apellidos,rut,telefono,correo,marca,modelo,consesionario)  VALUES ("
         ."'{$app->request->post("source")}',"
         ."'{$app->request->post("origen")}',"
          ."'{$app->request->post("nombres")}',"
