@@ -102,8 +102,6 @@ $app->get("/productos",function() use($db,$app){
          ."'{$app->request->post("consesionario")}'"
          .")";
 
-         echo $query;
-
          $insert= $db->query($query);
           if($insert){
           $result = array("STATUS"=>true,"messaje"=>"Skoda registrado correctamente");
