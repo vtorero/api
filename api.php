@@ -90,9 +90,21 @@ $app->get("/productos",function() use($db,$app){
         $app->post("/login",function() use($db,$app){
          $json = $app->request->getBody();
         $data = json_decode($json, true);
-         $result = array("STATUS"=>true,"messaje"=>"Ingreso correcto del usuario ".$data["usuario"].$data["password"]);
-         echo json_encode($result);
-        });
+
+        $resultado = $db->query("SELECT * FROM api.usuarios where usuario='".$data['usuario']."' and password='".$data['password']."'");  
+        $usuario=array();
+        while ($fila = $resultado->fetch_object()) {
+        $usuario[]=$fila;
+        }
+        if(count($usuario)==1){
+            $data = array("status"=>true,"data"=>$usuario);
+        }else{
+            $data = array("status"=>false);
+        }
+        echo  json_encode($data);
+    });
+
+   
 
     $app->post("/skoda",function() use($db,$app){
         $query ="INSERT INTO skoda (source,origen,nombres,apellidos,rut,telefono,correo,marca,modelo,concesionario)  VALUES ("
