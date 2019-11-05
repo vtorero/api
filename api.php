@@ -56,7 +56,8 @@ $app->get("/productos",function() use($db,$app){
         $result = array("STATUS"=>false,"messaje"=>"Producto no creado");
         }
          echo json_encode($result);
-        });        
+        });
+
         $app->put("/productos/:id",function($id) use($db,$app){
         $query ="UPDATE productos SET "
         ."name ='{$app->request->post("name")}',"
@@ -87,7 +88,7 @@ $app->get("/productos",function() use($db,$app){
      echo json_encode($result);
     });
 
-        $app->post("/login",function() use($db,$app){
+   $app->post("/login",function() use($db,$app){
          $json = $app->request->getBody();
         $data = json_decode($json, true);
 
@@ -97,13 +98,41 @@ $app->get("/productos",function() use($db,$app){
         $usuario[]=$fila;
         }
         if(count($usuario)==1){
-            $data = array("status"=>true,"data"=>$usuario);
+            $data = array("status"=>true,"rows"=>1,"data"=>$usuario);
         }else{
-            $data = array("status"=>false);
+            $data = array("status"=>false,"rows"=>0,"data"=>null);
         }
         echo  json_encode($data);
     });
 
+
+
+   $app->post("/reporte",function() use($db,$app){
+    header("Content-type: application/json; charset=utf-8");
+    $json = $app->request->getBody();
+    $dat = json_decode($json, true);
+    $arraymeses=array('Jan','Oct','Nov');
+    $arraynros=array('01','10','11');
+    $mes1=substr($dat['ini'], 0,3);
+    $mes2=substr($dat['fin'], 0,3);
+    $dia1=substr($dat['ini'], 3,2);
+    $dia2=substr($dat['fin'], 3,2);
+    $ano1=substr($dat['ini'], 5,4);
+    $ano2=substr($dat['fin'], 5,4);
+    $fmes1=str_replace($arraymeses,$arraynros,$mes1);
+    $fmes2=str_replace($arraymeses,$arraynros,$mes2);
+    $f1=$ano1.'-'.$fmes1.'-'.$dia1;
+    $f2=$ano2.'-'.$fmes2.'-'.$dia2;
+
+
+    $resultado = $db->query("SELECT dimensionad_exchange_device_category,count(*) as total FROM adops.11223363888  where dimensionad_exchange_date between '".$f1."' and '".$f2."' group by 1 order by 2 desc");  
+    $datos=array();
+        while ($fila = $resultado->fetch_array()) {
+             $datos[]=$fila;
+        }
+        $data = array("status"=>200,"data"=>$datos,"envio"=>$f1.'--'.$f2);
+        echo json_encode($data);
+        });
    
 
     $app->post("/skoda",function() use($db,$app){
