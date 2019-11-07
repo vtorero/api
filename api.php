@@ -31,18 +31,6 @@ $app->get("/skoda",function() use($db,$app){
         echo  json_encode($data);
     });
 
-$app->get("/productos",function() use($db,$app){
-    header("Content-type: application/json; charset=utf-8");
-    $resultado = $db->query("SELECT dimensionad_exchange_device_category,count(*) as total FROM adops.11223363888 
-    where dimensionad_exchange_date between '2019-09-01' and '2019-09-29' group by 1 order by 2 desc");  
-    $productos=array();
-        while ($fila = $resultado->fetch_array()) {
-            
-            $productos[]=$fila;
-        }
-        $data = array("status"=>200,"data"=>$productos);
-        echo  json_encode($data);
-    });
     $app->post("/productos",function() use($db,$app){
      $query ="INSERT INTO productos VALUES (NULL,"
       ."'{$app->request->post("name")}',"
@@ -105,14 +93,15 @@ $app->get("/productos",function() use($db,$app){
         echo  json_encode($data);
     });
 
-
+/*dashboard adops*/
 
    $app->post("/reporte",function() use($db,$app){
     header("Content-type: application/json; charset=utf-8");
     $json = $app->request->getBody();
     $dat = json_decode($json, true);
-    $arraymeses=array('Jan','Oct','Nov');
-    $arraynros=array('01','10','11');
+    $emp=$dat['emp'];
+    $arraymeses=array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec');
+    $arraynros=array('01','02','03','04','05','06','07','08','09','10','11','12');
     $mes1=substr($dat['ini'], 0,3);
     $mes2=substr($dat['fin'], 0,3);
     $dia1=substr($dat['ini'], 3,2);
@@ -121,19 +110,77 @@ $app->get("/productos",function() use($db,$app){
     $ano2=substr($dat['fin'], 5,4);
     $fmes1=str_replace($arraymeses,$arraynros,$mes1);
     $fmes2=str_replace($arraymeses,$arraynros,$mes2);
-    $f1=$ano1.'-'.$fmes1.'-'.$dia1;
-    $f2=$ano2.'-'.$fmes2.'-'.$dia2;
+    $ini=$ano1.'-'.$fmes1.'-'.$dia1;
+    $fin=$ano2.'-'.$fmes2.'-'.$dia2;
+
+    $datocliente=$db->query("SELECT * FROM api.usuarios where empresa='".$emp."'");
+       $infocliente=array();
+  while ($cliente = $datocliente->fetch_array()) {
+            $infocliente[]=$cliente;
+        }
+
+        $tasa=(float) $infocliente[0]["tasa"];
 
 
-    $resultado = $db->query("SELECT dimensionad_exchange_device_category,count(*) as total FROM adops.11223363888  where dimensionad_exchange_date between '".$f1."' and '".$f2."' group by 1 order by 2 desc");  
+    $ingreso=$db->query("SELECT ROUND(sum(columnad_exchange_ad_ecpm)*".$tasa.",2) ingreso  FROM adops.11223363888   where  dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and dimensionad_exchange_date between '".$ini."' and '".$fin."'");
+       $infoingreso=array();
+        while ($row = $ingreso->fetch_array()) {
+            $infoingreso[]=$row;
+        }
+
+    $resultado = $db->query("SELECT dimensionad_exchange_device_category,count(*) as total FROM adops.11223363888  where dimensionad_exchange_device_category <>'Connected TV' 
+        and dimensionad_exchange_network_partner_name='".$emp."' and dimensionad_exchange_date between '".$ini."' and '".$fin."' group by 1 order by 2 desc");  
     $datos=array();
         while ($fila = $resultado->fetch_array()) {
              $datos[]=$fila;
         }
-        $data = array("status"=>200,"data"=>$datos,"envio"=>$f1.'--'.$f2);
+        $data = array("status"=>200,"data"=>$datos,"envio"=>$dat,"ingreso"=>$infoingreso);
         echo json_encode($data);
         });
-   
+ 
+
+
+$app->post("/inicio",function() use($db,$app){
+    header("Content-type: application/json; charset=utf-8");
+    $json = $app->request->getBody();
+    $dat = json_decode($json, true);
+    $date = new DateTime();
+    $date->modify('last day of this month');
+    $date->format('Y-m-d');
+    $ini=substr( $date->format('Y-m-d'),0,7).'-01';
+    $fin = substr($date->format('Y-m-d'),0,10);
+    $emp=$dat['emp'];
+
+    
+    $datocliente=$db->query("SELECT * FROM api.usuarios where empresa='".$emp."'");
+       $infocliente=array();
+  while ($cliente = $datocliente->fetch_array()) {
+            $infocliente[]=$cliente;
+        }
+
+        $tasa=(float) $infocliente[0]["tasa"];
+
+$ingreso=$db->query("SELECT ROUND(sum(columnad_exchange_ad_ecpm)*".$tasa.",2) ingreso  FROM adops.11223363888   where  dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and dimensionad_exchange_date between '".$ini."' and '".$fin."'");
+       $infoingreso=array();
+  while ($row = $ingreso->fetch_array()) {
+            $infoingreso[]=$row;
+        }
+
+
+    $resultado = $db->query("SELECT dimensionad_exchange_device_category,round(sum(columnad_exchange_estimated_revenue),2)*".$tasa." as total FROM adops.11223363888
+    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."'  and 
+    dimensionad_exchange_date between '".$ini."' and '".$fin."' and round(columnad_exchange_estimated_revenue,2)>0.00 group by 1 order by 2 desc");  
+    $info=array();
+        while ($fila = $resultado->fetch_array()) {
+            
+            $info[]=$fila;
+        }
+        $data = array("status"=>200,"data"=>$info,"ingreso"=>$infoingreso);
+        echo  json_encode($data);
+    });
+
+
+/*final adops dashobard*/
 
     $app->post("/skoda",function() use($db,$app){
         $query ="INSERT INTO skoda (source,origen,nombres,apellidos,rut,telefono,correo,marca,modelo,concesionario)  VALUES ("
