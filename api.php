@@ -167,6 +167,16 @@ $ingreso=$db->query("SELECT ROUND(sum(columnad_exchange_ad_ecpm)*".$tasa.",2) in
         }
 
 
+  $resultado_diario = $db->query("SELECT dimensionad_exchange_date,round(sum(columnad_exchange_estimated_revenue),2)*0.8 as total FROM adops.11223363888
+    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='Latina.pe'  and 
+    dimensionad_exchange_date between '2019-11-01' and '2019-11-06' and round(columnad_exchange_estimated_revenue,2)>0.00 group by 1 order by 1 asc");  
+    $infodia=array();
+        while ($filadia = $resultado_diario->fetch_array()) {
+            
+            $infodia[]=$filadia;
+        }
+
+
     $resultado = $db->query("SELECT dimensionad_exchange_device_category,round(sum(columnad_exchange_estimated_revenue),2)*".$tasa." as total FROM adops.11223363888
     where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."'  and 
     dimensionad_exchange_date between '".$ini."' and '".$fin."' and round(columnad_exchange_estimated_revenue,2)>0.00 group by 1 order by 2 desc");  
@@ -175,8 +185,12 @@ $ingreso=$db->query("SELECT ROUND(sum(columnad_exchange_ad_ecpm)*".$tasa.",2) in
             
             $info[]=$fila;
         }
-        $data = array("status"=>200,"data"=>$info,"ingreso"=>$infoingreso);
+        $data = array("status"=>200,"data"=>$info,"ingreso"=>$infoingreso,"diario"=>$infodia);
         echo  json_encode($data);
+
+
+
+
     });
 
 
