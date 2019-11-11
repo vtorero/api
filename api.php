@@ -122,11 +122,43 @@ $app->get("/skoda",function() use($db,$app){
         $tasa=(float) $infocliente[0]["tasa"];
 
 
-$ingreso=$db->query("SELECT ROUND(sum(columnad_exchange_ad_ecpm)*".$tasa.",2) ingreso_cpm,ROUND(sum(columnad_exchange_estimated_revenue)*".$tasa.",2) ingreso_total  FROM adops.11223363888   where  dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and dimensionad_exchange_date between '".$ini."' and '".$fin."'");
+$ingreso=$db->query("SELECT ROUND(sum(columnad_exchange_ad_ecpm)*".$tasa.",2) ingreso_cpm,ROUND(sum(columnad_exchange_estimated_revenue)*".$tasa.",2) ingreso_total ,sum(columnad_exchange_impressions) impresiones FROM adops.11223363888   where  dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and dimensionad_exchange_date between '".$ini."' and '".$fin."'");
        $infoingreso=array();
   while ($row = $ingreso->fetch_array()) {
             $infoingreso[]=$row;
         }
+
+   
+              $resultado_desk = $db->query("SELECT dimensionad_exchange_date,round(sum(columnad_exchange_estimated_revenue),2)*".$tasa." as total FROM adops.11223363888
+    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and 
+    dimensionad_exchange_date between '".$ini."' and '".$fin."' and round(columnad_exchange_estimated_revenue,2)>0.00 and dimensionad_exchange_device_category='Desktop' group by 1 order by 1 asc");  
+    $infodesk=array();
+        while ($filadesk= $resultado_desk->fetch_array()) {
+            
+            $infodesk[]=$filadesk;
+        }    
+
+        
+
+          $resultado_table = $db->query("SELECT dimensionad_exchange_date,round(sum(columnad_exchange_estimated_revenue),2)*".$tasa." as total FROM adops.11223363888
+    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and 
+    dimensionad_exchange_date between '".$ini."' and '".$fin."' and round(columnad_exchange_estimated_revenue,2)>0.00 and dimensionad_exchange_device_category='Tablets' group by 1 order by 1 asc");  
+    $infotablet=array();
+        while ($filatab = $resultado_table->fetch_array()) {
+            
+            $infotablet[]=$filatab;
+        }
+
+
+          $resultado_mobil = $db->query("SELECT dimensionad_exchange_date,round(sum(columnad_exchange_estimated_revenue),2)*".$tasa." as total FROM adops.11223363888
+    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and 
+    dimensionad_exchange_date between '".$ini."' and '".$fin."' and round(columnad_exchange_estimated_revenue,2)>0.00 and dimensionad_exchange_device_category='High-end mobile devices' group by 1 order by 1 asc");  
+    $infomovil=array();
+        while ($filamob = $resultado_mobil->fetch_array()) {
+            
+            $infomovil[]=$filamob;
+        }
+
 
     $resultado = $db->query("SELECT dimensionad_exchange_device_category,round(sum(columnad_exchange_estimated_revenue),2)*".$tasa." as total FROM adops.11223363888
     where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."'  and 
@@ -136,7 +168,7 @@ $ingreso=$db->query("SELECT ROUND(sum(columnad_exchange_ad_ecpm)*".$tasa.",2) in
             
             $info[]=$fila;
         }
-        $data = array("status"=>200,"data"=>$info,"envio"=>$dat,"ingreso"=>$infoingreso);
+        $data = array("status"=>200,"data"=>$info,"ingreso"=>$infoingreso,"diario_desktop"=>$infodesk,"diario_tablet"=>$infotablet,"diario_movil"=>$infomovil);
         echo json_encode($data);
         });
  
@@ -162,21 +194,49 @@ $app->post("/inicio",function() use($db,$app){
 
         $tasa=(float) $infocliente[0]["tasa"];
 
-$ingreso=$db->query("SELECT ROUND(sum(columnad_exchange_ad_ecpm)*".$tasa.",2) ingreso_cpm,ROUND(sum(columnad_exchange_estimated_revenue)*".$tasa.",2) ingreso_total  FROM adops.11223363888   where  dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and dimensionad_exchange_date between '".$ini."' and '".$fin."'");
-       $infoingreso=array();
-  while ($row = $ingreso->fetch_array()) {
-            $infoingreso[]=$row;
-        }
 
 
-  $resultado_diario = $db->query("SELECT dimensionad_exchange_date,round(sum(columnad_exchange_estimated_revenue),2)*0.8 as total FROM adops.11223363888
-    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='Latina.pe'  and 
-    dimensionad_exchange_date between '2019-11-01' and '2019-11-06' and round(columnad_exchange_estimated_revenue,2)>0.00 group by 1 order by 1 asc");  
+
+  $resultado_diario = $db->query("SELECT dimensionad_exchange_date,round(sum(columnad_exchange_estimated_revenue),2)*".$tasa." as total FROM adops.11223363888
+    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and 
+    dimensionad_exchange_date between '".$ini."' and '".$fin."' and round(columnad_exchange_estimated_revenue,2)>0.00 group by 1 order by 1 asc");  
     $infodia=array();
         while ($filadia = $resultado_diario->fetch_array()) {
             
             $infodia[]=$filadia;
         }
+
+
+              $resultado_desk = $db->query("SELECT dimensionad_exchange_date,round(sum(columnad_exchange_estimated_revenue),2)*".$tasa." as total FROM adops.11223363888
+    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and 
+    dimensionad_exchange_date between '".$ini."' and '".$fin."' and round(columnad_exchange_estimated_revenue,2)>0.00 and dimensionad_exchange_device_category='Desktop' group by 1 order by 1 asc");  
+    $infodesk=array();
+        while ($filadesk= $resultado_desk->fetch_array()) {
+            
+            $infodesk[]=$filadesk;
+        }    
+
+        
+
+          $resultado_table = $db->query("SELECT dimensionad_exchange_date,round(sum(columnad_exchange_estimated_revenue),2)*".$tasa." as total FROM adops.11223363888
+    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and 
+    dimensionad_exchange_date between '".$ini."' and '".$fin."' and round(columnad_exchange_estimated_revenue,2)>0.00 and dimensionad_exchange_device_category='Tablets' group by 1 order by 1 asc");  
+    $infotablet=array();
+        while ($filatab = $resultado_table->fetch_array()) {
+            
+            $infotablet[]=$filatab;
+        }
+
+
+          $resultado_mobil = $db->query("SELECT dimensionad_exchange_date,round(sum(columnad_exchange_estimated_revenue),2)*".$tasa." as total FROM adops.11223363888
+    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and 
+    dimensionad_exchange_date between '".$ini."' and '".$fin."' and round(columnad_exchange_estimated_revenue,2)>0.00 and dimensionad_exchange_device_category='High-end mobile devices' group by 1 order by 1 asc");  
+    $infomovil=array();
+        while ($filamob = $resultado_mobil->fetch_array()) {
+            
+            $infomovil[]=$filamob;
+        }
+
 
 
     $resultado = $db->query("SELECT dimensionad_exchange_device_category,round(sum(columnad_exchange_estimated_revenue),2)*".$tasa." as total FROM adops.11223363888
@@ -187,7 +247,14 @@ $ingreso=$db->query("SELECT ROUND(sum(columnad_exchange_ad_ecpm)*".$tasa.",2) in
             
             $info[]=$fila;
         }
-        $data = array("status"=>200,"data"=>$info,"ingreso"=>$infoingreso,"diario"=>$infodia);
+        
+       $ingreso=$db->query("SELECT ROUND(sum(columnad_exchange_ad_ecpm)*".$tasa.",2) ingreso_cpm,ROUND(sum(columnad_exchange_estimated_revenue)*".$tasa.",2) ingreso_total,sum(columnad_exchange_impressions) impresiones  FROM adops.11223363888   where  dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and dimensionad_exchange_date between '".$ini."' and '".$fin."'");
+       $infoingreso=array();
+  while ($row = $ingreso->fetch_array()) {
+            $infoingreso[]=$row;
+        }
+        
+        $data = array("status"=>200,"data"=>$info,"ingreso"=>$infoingreso,"diario"=>$infodia,"diario_desktop"=>$infodesk,"diario_tablet"=>$infotablet,"diario_movil"=>$infomovil);
         echo  json_encode($data);
 
 
@@ -220,5 +287,20 @@ $ingreso=$db->query("SELECT ROUND(sum(columnad_exchange_ad_ecpm)*".$tasa.",2) in
            }
             echo json_encode($result);
            }); 
+
+
+function traer_datos($ini,$fin,$emp,$tasa){
+$db=new mysqli("localhost","marife","libido16","adops");
+    
+    $sql="SELECT ROUND(sum(columnad_exchange_ad_ecpm)*".$tasa.",2) ingreso_cpm,ROUND(sum(columnad_exchange_estimated_revenue)*".$tasa.",2) ingreso_total  FROM adops.11223363888   where  dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and dimensionad_exchange_date between ".$ini." and ".$fin;
+
+ $ingreso=$db->query($sql);
+    
+     $data=array();
+       while ($row = $ingreso->fetch_array()) {
+         $data[]=$row;
+     }
+        return $data;
+}
 
 $app->run();
