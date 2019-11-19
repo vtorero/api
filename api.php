@@ -9,6 +9,7 @@ if($method == "OPTIONS") {
     die();
 }
 require_once 'vendor/autoload.php';
+
 $app = new Slim\Slim();
 $db = new mysqli("localhost","marife","libido16","adops");
 
@@ -18,6 +19,81 @@ if (mysqli_connect_errno()) {
     exit();
 }
 $data=array();
+
+$app->post("/tablaconsulta",function() use($db,$app){
+  header("Content-type: application/json; charset=utf-8");
+    $json = $app->request->getBody();
+    $dat = json_decode($json, true);
+   $emp=$dat['emp'];
+    $arraymeses=array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec');
+    $arraynros=array('01','02','03','04','05','06','07','08','09','10','11','12');
+    $mes1=substr($dat['ini'], 0,3);
+    $mes2=substr($dat['fin'], 0,3);
+    $dia1=substr($dat['ini'], 3,2);
+    $dia2=substr($dat['fin'], 3,2);
+    $ano1=substr($dat['ini'], 5,4);
+    $ano2=substr($dat['fin'], 5,4);
+    $fmes1=str_replace($arraymeses,$arraynros,$mes1);
+    $fmes2=str_replace($arraymeses,$arraynros,$mes2);
+    $ini=$ano1.'-'.$fmes1.'-'.$dia1;
+    $fin=$ano2.'-'.$fmes2.'-'.$dia2;
+
+     $datocliente=$db->query("SELECT * FROM api.usuarios where empresa='".$emp."'");
+       $infocliente=array();
+  while ($cliente = $datocliente->fetch_array()) {
+            $infocliente[]=$cliente;
+        }
+        $tasa=(float) $infocliente[0]["tasa"];
+
+      $resultado_diario = $db->query("SELECT dimensionad_exchange_date ,dimensionad_exchange_creative_sizes ,dimensionad_exchange_device_category  ,columnad_exchange_impressions ,columnad_exchange_estimated_revenue*".$tasa." columnad_exchange_estimated_revenue FROM adops.11223363888
+    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' 
+and dimensionad_exchange_date between '".$ini."' and '".$fin."' order by 1 desc ");  
+    $infotabla=array();
+        while ($filatabla = $resultado_diario->fetch_array()) {
+                        $infotabla[]=$filatabla;
+        }
+        
+        
+        $respuesta=json_encode($infotabla);
+        echo  $respuesta;
+
+});
+
+
+
+$app->post("/tabla",function() use($db,$app){
+  header("Content-type: application/json; charset=utf-8");
+    $json = $app->request->getBody();
+    $dat = json_decode($json, true);
+    $date = new DateTime();
+    $date->modify('last day of this month');
+    $date->format('Y-m-d');
+    $ini=substr( $date->format('Y-m-d'),0,7).'-01';
+    $fin = substr($date->format('Y-m-d'),0,10);
+    $emp=$dat['emp'];
+
+     $datocliente=$db->query("SELECT * FROM api.usuarios where empresa='".$emp."'");
+       $infocliente=array();
+  while ($cliente = $datocliente->fetch_array()) {
+            $infocliente[]=$cliente;
+        }
+        $tasa=(float) $infocliente[0]["tasa"];
+
+      $resultado_diario = $db->query("SELECT dimensionad_exchange_date ,dimensionad_exchange_creative_sizes ,dimensionad_exchange_device_category  ,columnad_exchange_impressions ,columnad_exchange_estimated_revenue*".$tasa." columnad_exchange_estimated_revenue FROM adops.11223363888
+    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' 
+and dimensionad_exchange_date between '".$ini."' and '".$fin."' order by 1 desc ");  
+    $infotabla=array();
+        while ($filatabla = $resultado_diario->fetch_array()) {
+                        $infotabla[]=$filatabla;
+        }
+        
+        
+        $respuesta=json_encode($infotabla);
+        echo  $respuesta;
+
+});
+
+
 
 $app->get("/skoda",function() use($db,$app){
     header("Content-type: application/json; charset=utf-8");
@@ -188,12 +264,21 @@ $app->post("/inicio",function() use($db,$app){
     
     $datocliente=$db->query("SELECT * FROM api.usuarios where empresa='".$emp."'");
        $infocliente=array();
-  while ($cliente = $datocliente->fetch_array()) {
+      while ($cliente = $datocliente->fetch_array()) {
             $infocliente[]=$cliente;
         }
 
         $tasa=(float) $infocliente[0]["tasa"];
 
+
+  $resultado_diario = $db->query("SELECT dimensionad_exchange_date ,dimensionad_exchange_creative_sizes ,dimensionad_exchange_device_category  ,columnad_exchange_impressions ,columnad_exchange_estimated_revenue*".$tasa." columnad_exchange_estimated_revenue FROM adops.11223363888
+    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and 
+    dimensionad_exchange_date between '".$ini."' and '".$fin."' and round(columnad_exchange_estimated_revenue,2)>0.00  order by 1 desc");  
+    $infotabla=array();
+        while ($filatabla = $resultado_diario->fetch_array()) {
+            
+            $infotabla[]=$filatabla;
+        }
 
 
 
@@ -247,6 +332,16 @@ $app->post("/inicio",function() use($db,$app){
             
             $info[]=$fila;
         }
+
+    $result_creative = $db->query("SELECT dimensionad_exchange_creative_sizes,round(sum(columnad_exchange_estimated_revenue),2)*".$tasa." as total FROM adops.11223363888
+    where dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."'  and 
+    dimensionad_exchange_date between '".$ini."' and '".$fin."' and round(columnad_exchange_estimated_revenue,2)>0.00 group by 1 order by 2 desc");  
+    $info_creative=array();
+        while ($filac = $result_creative->fetch_array()) {
+            
+            $info_creative[]=$filac;
+        }
+
         
        $ingreso=$db->query("SELECT ROUND(sum(columnad_exchange_ad_ecpm)*".$tasa.",2) ingreso_cpm,ROUND(sum(columnad_exchange_estimated_revenue)*".$tasa.",2) ingreso_total,sum(columnad_exchange_impressions) impresiones  FROM adops.11223363888   where  dimensionad_exchange_device_category <>'Connected TV' and dimensionad_exchange_network_partner_name='".$emp."' and dimensionad_exchange_date between '".$ini."' and '".$fin."'");
        $infoingreso=array();
@@ -254,7 +349,7 @@ $app->post("/inicio",function() use($db,$app){
             $infoingreso[]=$row;
         }
         
-        $data = array("status"=>200,"data"=>$info,"ingreso"=>$infoingreso,"diario"=>$infodia,"diario_desktop"=>$infodesk,"diario_tablet"=>$infotablet,"diario_movil"=>$infomovil);
+        $data = array("status"=>200,"data"=>$info,"ingreso"=>$infoingreso,"diario"=>$infodia,"diario_desktop"=>$infodesk,"diario_tablet"=>$infotablet,"diario_movil"=>$infomovil,"creatives"=>$info_creative);
         echo  json_encode($data);
 
 
