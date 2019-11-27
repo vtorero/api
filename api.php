@@ -154,21 +154,66 @@ $app->get("/skoda",function() use($db,$app){
      echo json_encode($result);
     });
 
+$app->post("/generalget",function() use($db,$app) {
+header("Content-type: application/json; charset=utf-8");
+    $json = $app->request->getBody();
+    $data = json_decode($json, true);
+      $datos=$db->query("SELECT * FROM api.dash_general WHERE empresa='{$data["empresa"]}'");
+       $infocliente=array();
+  while ($cliente = $datos->fetch_object()) {
+            $infocliente[]=$cliente;
+        }
+        $return=array("data"=>$infocliente);
 
-   $app->post("/general",function() use($db,$app){
-        $json = $app->request->getBody();
-        $data = json_decode($json, true);
+           echo  json_encode($return);
+});
 
+
+ $app->post("/general",function() use($db,$app){
+    header("Content-type: application/json; charset=utf-8");
+       $json = $app->request->getBody();
+       $j = json_decode($json,true);
+       $data = json_decode($j['json']);
+
+       
+        
+        $nombres=(is_array($data->nombres))? array_shift($data->nombres): $data->nombres;
+        $correo=(is_array($data->correo))? array_shift($data->correo): $data->correo;
+        $telefono=(is_array($data->telefono))? array_shift($data->telefono): $data->telefono;
+        $empresa=$data->empresa;
+
+
+
+        $contar=array();
+        $cantidad=$db->query("SELECT * FROM api.dash_general WHERE empresa='{$empresa}'");
+  while ($cliente = $cantidad->fetch_array()) {
+            $contar[]=$cliente;
+        }
+
+
+if(count($contar)>0){ 
+
+     $query ="UPDATE api.dash_general  SET "
+        ."nombres ='{$nombres}',"
+        ."correo = '{$correo}',"
+        ."telefono = '{$telefono}'"
+        ." WHERE empresa='{$empresa}'";
+          
+          $update=$db->query($query);
+
+      
+    }else{
         $query ="INSERT INTO api.dash_general VALUES (NULL,"
-      ."'{$data["correo"]}',"
-      ."'{$data["nombres"]}',"
-      ."'{$data["telefono"]}'"
+      ."'{$correo}',"
+      ."'{$nombres}',"
+      ."'{$telefono}'"
       .")";
-      $insert= $db->query($query);
-       if($insert){
-       $result = array("STATUS"=>true,"messaje"=>"Usuario creado correctamente");
+      $insert=$db->query($query);
+    }
+       if(count($contar)>0){
+       $result = array("STATUS"=>true,"messaje"=>"Usuario actualizado correctamente");
         }else{
-        $result = array("STATUS"=>false,"messaje"=>"Usuario no creado");
+        $result = array("STATUS"=>false,"messaje"=>"Usuario creado correctamente");
         }
         echo  json_encode($result);
     });
@@ -400,7 +445,7 @@ $app->post("/inicio",function() use($db,$app){
 /*final adops dashobard*/
 
     $app->post("/skoda",function() use($db,$app){
-        $query ="INSERT INTO skoda (source,origen,nombres,apellidos,rut,telefono,correo,marca,modelo,concesionario)  VALUES ("
+        $query ="INSERT INTO skoda (source,origen,nombres,apellidos,rut,telefono,correo,marca,modelo,concesionario,dispositivo)  VALUES ("
         ."'{$app->request->post("source")}',"
         ."'{$app->request->post("origen")}',"
          ."'{$app->request->post("nombres")}',"
@@ -410,7 +455,8 @@ $app->post("/inicio",function() use($db,$app){
          ."'{$app->request->post("correo")}',"
          ."'{$app->request->post("marca")}',"
          ."'{$app->request->post("modelo")}',"
-         ."'{$app->request->post("concesionario")}'"
+         ."'{$app->request->post("concesionario")}',"
+         ."'{$app->request->post("dispositivo")}'"
          .")";
 
          $insert= $db->query($query);
