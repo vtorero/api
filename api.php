@@ -1,5 +1,4 @@
 <?php
-
 header('Access-Control-Allow-Origin:*');
 header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
@@ -175,11 +174,22 @@ header("Content-type: application/json; charset=utf-8");
        $j = json_decode($json,true);
        $data = json_decode($j['json']);
 
-       
         
         $nombres=(is_array($data->nombres))? array_shift($data->nombres): $data->nombres;
         $correo=(is_array($data->correo))? array_shift($data->correo): $data->correo;
         $telefono=(is_array($data->telefono))? array_shift($data->telefono): $data->telefono;
+        $sociedad=(is_array($data->sociedad))? array_shift($data->sociedad): $data->sociedad;
+        $paginas=(is_array($data->paginas))? array_shift($data->paginas): $data->paginas;
+        $rut=(is_array($data->rut))? array_shift($data->rut): $data->rut;
+        $domicilio=(is_array($data->domicilio))? array_shift($data->domicilio): $data->domicilio;
+        $calle=(is_array($data->calle))? array_shift($data->calle): $data->calle;
+        $numero=(is_array($data->numero))? array_shift($data->numero): $data->numero;            
+        $ciudad=(is_array($data->ciudad))? array_shift($data->ciudad): $data->ciudad;
+        $pais=(is_array($data->pais))? array_shift($data->pais): $data->pais;
+        $confinanzas=(is_array($data->confinanzas))? array_shift($data->confinanzas): $data->confinanzas;
+        $tlffinanzas=(is_array($data->tlffinanzas))? array_shift($data->tlffinanzas): $data->tlffinanzas;
+        $correofinan=(is_array($data->correofinan))? array_shift($data->correofinan): $data->correofinan;
+        $medios=(is_array($data->medios))? array_shift($data->medios): $data->medios;
         $empresa=$data->empresa;
 
 
@@ -196,18 +206,44 @@ if(count($contar)>0){
      $query ="UPDATE api.dash_general  SET "
         ."nombres ='{$nombres}',"
         ."correo = '{$correo}',"
-        ."telefono = '{$telefono}'"
+        ."telefono = '{$telefono}',"
+        ."sociedad = '{$sociedad}',"
+        ."paginas = '{$paginas}',"
+        ."rut = '{$rut}',"
+        ."domicilio = '{$domicilio}',"
+        ."calle = '{$calle}',"
+        ."numero = '{$numero}',"
+        ."ciudad = '{$ciudad}',"
+        ."pais = '{$pais}',"
+        ."confinanzas = '{$confinanzas}',"
+        ."tlffinanzas = '{$tlffinanzas}',"
+        ."correofinan = '{$correofinan}',"
+        ."medios = '{$medios}'"
         ." WHERE empresa='{$empresa}'";
           
           $update=$db->query($query);
 
       
     }else{
-        $query ="INSERT INTO api.dash_general VALUES (NULL,"
+        $query ="INSERT INTO api.dash_general (correo,empresa,nombres,telefono,sociedad,paginas,rut,domicilio,calle,numero,ciudad,pais,confinanzas,tlffinanzas,correofinan,medios) VALUES ("
       ."'{$correo}',"
+      ."'{$empresa}',"
       ."'{$nombres}',"
-      ."'{$telefono}'"
-      .")";
+      ."'{$telefono}',"
+      ."'{$sociedad}',"
+      ."'{$paginas}',"
+      ."'{$rut}',"
+      ."'{$domicilio}',"
+      ."'{$calle}',"
+      ."'{$numero}',"
+      ."'{$ciudad}',"
+      ."'{$pais}',"
+      ."'{$confinanzas}',"
+      ."'{$tlffinanzas}',"
+      ."'{$correofinan}',"
+      ."'{$medios}'"
+          .")";
+   
       $insert=$db->query($query);
     }
        if(count($contar)>0){
@@ -275,7 +311,7 @@ $ingreso=$db->query("SELECT FORMAT(avg(columnad_exchange_ad_ecpm)*".$tasa.",2) i
         }
 
    
-              $resultado_desk = $db->query("SELECT SUBSTRING(dimensionad_exchange_date,6,6) dimensionad_exchange_date,FORMAT(sum(columnad_exchange_estimated_revenue)*".$tasa.",2) as total FROM adops.11223363888
+              $resultado_desk = $db->query("SELECT concat(SUBSTRING(dimensionad_exchange_date,6,2),'/',SUBSTRING(dimensionad_exchange_date,9,2)) dimensionad_exchange_date,FORMAT(sum(columnad_exchange_estimated_revenue)*".$tasa.",2) as total FROM adops.11223363888
     where  dimensionad_exchange_network_partner_name='".$emp."' and 
     dimensionad_exchange_date between '".$ini."' and '".$fin."' group by 1 order by 1 asc");  
     $infodesk=array();
@@ -376,7 +412,7 @@ $app->post("/inicio",function() use($db,$app){
         }
 
 
-              $resultado_desk = $db->query("SELECT SUBSTRING(dimensionad_exchange_date,6,6) dimensionad_exchange_date,FORMAT(sum(columnad_exchange_estimated_revenue)*".$tasa.",2) as total FROM adops.11223363888
+              $resultado_desk = $db->query("SELECT concat(SUBSTRING(dimensionad_exchange_date,6,2),'/',SUBSTRING(dimensionad_exchange_date,9,2)) dimensionad_exchange_date,FORMAT(sum(columnad_exchange_estimated_revenue)*".$tasa.",2) as total FROM adops.11223363888
     where  dimensionad_exchange_network_partner_name='".$emp."' and 
     dimensionad_exchange_date between '".$ini."' and '".$fin."' group by 1 order by 1 asc");  
     $infodesk=array();
