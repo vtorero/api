@@ -153,6 +153,22 @@ $app->get("/skoda",function() use($db,$app){
      echo json_encode($result);
     });
 
+$app->post("/bancosget",function() use($db,$app) {
+header("Content-type: application/json; charset=utf-8");
+    $json = $app->request->getBody();
+    $data = json_decode($json, true);
+      $datos=$db->query("SELECT * FROM api.dash_bancario WHERE usuario='{$data["empresa"]}'");
+       $infocliente=array();
+  while ($cliente = $datos->fetch_object()) {
+            $infocliente[]=$cliente;
+        }
+        $return=array("data"=>$infocliente);
+
+           echo  json_encode($return);
+});
+
+
+
 $app->post("/generalget",function() use($db,$app) {
 header("Content-type: application/json; charset=utf-8");
     $json = $app->request->getBody();
@@ -166,6 +182,92 @@ header("Content-type: application/json; charset=utf-8");
 
            echo  json_encode($return);
 });
+
+
+ $app->post("/banco",function() use($db,$app){
+    header("Content-type: application/json; charset=utf-8");
+       $json = $app->request->getBody();
+       $j = json_decode($json,true);
+       $data = json_decode($j['json']);
+
+        
+        $empresa=(is_array($data->empresa))? array_shift($data->empresa): $data->empresa;
+        $entidad=(is_array($data->entidad))? array_shift($data->entidad): $data->entidad;
+        $beneficiario=(is_array($data->beneficiario))? array_shift($data->beneficiario): $data->beneficiario;
+        $persona=(is_array($data->persona))? array_shift($data->persona): $data->persona;
+        $dom_entidad=(is_array($data->dom_entidad))? array_shift($data->dom_entidad): $data->dom_entidad;
+        $ciudad=(is_array($data->ciudad))? array_shift($data->ciudad): $data->ciudad;
+        $sucursal=(is_array($data->sucursal))? array_shift($data->sucursal): $data->sucursal;
+        $tipocuenta=(is_array($data->tipocuenta))? array_shift($data->tipocuenta): $data->tipocuenta;
+        $numerocta=(is_array($data->numerocta))? array_shift($data->numerocta): $data->numerocta;
+        $aba=(is_array($data->aba))? array_shift($data->aba): $data->aba;            
+        $swift=(is_array($data->swift))? array_shift($data->swift): $data->swift;
+        $contactobco=(is_array($data->contactobco))? array_shift($data->contactobco): $data->contactobco;
+        $tlfcontacto=(is_array($data->tlfcontacto))? array_shift($data->tlfcontacto): $data->tlfcontacto;
+        $bancointer=(is_array($data->bancointer))? array_shift($data->bancointer): $data->bancointer;
+        $abainter=(is_array($data->abainter))? array_shift($data->abainter): $data->abainter;
+        
+
+
+        $contar=array();
+        $cantidad=$db->query("SELECT * FROM api.dash_bancario WHERE usuario='{$empresa}'");
+  while ($cliente = $cantidad->fetch_array()) {
+            $contar[]=$cliente;
+        }
+
+
+if(count($contar)>0){ 
+
+     $query ="UPDATE api.dash_bancario  SET "
+        ."entidad ='{$entidad}',"
+        ."beneficiario = '{$beneficiario}',"
+        ."persona = '{$persona}',"
+        ."dom_entidad = '{$dom_entidad}',"
+        ."ciudad = '{$ciudad}',"
+        ."sucursal = '{$sucursal}',"
+        ."tipocuenta= '{$tipocuenta}',"
+        ."numerocta= '{$numerocta}',"
+        ."aba = '{$aba}',"
+        ."swift = '{$swift}',"
+        ."contactobco = '{$contactobco}',"
+        ."tlfcontacto = '{$tlfcontacto}',"
+        ."bancointer = '{$bancointer}',"
+        ."abainter = '{$abainter}'"
+        ." WHERE usuario='{$empresa}'";
+          
+          $update=$db->query($query);
+
+      
+    }else{
+        $query ="INSERT INTO api.dash_bancario (usuario,entidad,beneficiario,persona,dom_entidad,ciudad,sucursal,tipocuenta,numerocta,aba,swift,contactobco,
+        tlfcontacto,bancointer,abainter) VALUES ("
+      ."'{$empresa}',"
+      ."'{$entidad}',"
+      ."'{$beneficiario}',"
+      ."'{$persona}',"
+      ."'{$dom_entidad}',"
+      ."'{$ciudad}',"
+      ."'{$sucursal}',"
+      ."'{$tipocuenta}',"
+      ."'{$numerocta}',"
+      ."'{$aba}',"
+      ."'{$swift}',"
+      ."'{$contactobco}',"
+      ."'{$tlfcontacto}',"
+      ."'{$bancointer}',"
+      ."'{$abainter}'"
+        .")";
+   
+      $insert=$db->query($query);
+    }
+       if(count($contar)>0){
+       $result = array("STATUS"=>true,"messaje"=>"Datos actualizados correctamente");
+        }else{
+        $result = array("STATUS"=>false,"messaje"=>"Datos creados correctamente");
+        }
+        echo  json_encode($result);
+    });
+
 
 
  $app->post("/general",function() use($db,$app){
